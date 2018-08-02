@@ -39,9 +39,9 @@ class Dht11(object):
     @staticmethod
     def post_data_to_main_server(humidity, temperature, hostname):
         payload = {'Temperature': temperature, 'Humidity': humidity, 'Hostname': hostname}
-        r = requests.post(UPLOAD_ADRESS, data=payload)
-        if not r.status_code == requests.codes.ok:
+        try:
+            r = requests.post(UPLOAD_ADRESS, data=payload)
+            if not r.status_code == requests.codes.ok:
+                log.info("Error uploading data")
+        except requests.exceptions.ConnectionError:
             log.info("Error uploading data")
-
-
-
