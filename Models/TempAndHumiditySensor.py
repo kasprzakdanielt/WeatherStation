@@ -38,7 +38,9 @@ class Dht11(object):
 
     @staticmethod
     def post_data_to_main_server(humidity, temperature, hostname):
-        payload = {'Temperature': temperature, 'Humidity': humidity, 'Hostname': hostname}
+        payload = [{'Temperature': temperature, 'Humidity': humidity, 'Hostname': hostname, 'Date':'' },
+                   {'Temperature': temperature, 'Humidity': humidity, 'Hostname': hostname, 'Date': ''}
+                   {'Temperature': temperature, 'Humidity': humidity, 'Hostname': hostname, 'Date': ''}]
         attempts = 0
         success = False
         log.info("Uploading data {}".format(hostname))
@@ -51,3 +53,13 @@ class Dht11(object):
                 time.sleep(10)
                 attempts += 1
                 log.info("Error uploading data")
+
+    def get_data_from_database_to_send(self, limit):
+        lista = self.database.select('select sensor_id, sensor_type, sensor_data, sensor_date, sensor_name from sensor_records LIMIT {}'.format(limit))
+        lista_do_wyslania = []
+        id_list = []
+        for x in lista:
+            lista_do_wyslania.append({'sensor_type':x[1], 'sensor_data': x[2], 'sensord_date': x[3], 'sensor_name': x[4]})
+            id_list.append({'sensor_id': x[0]})
+        return lista_do_wyslania, id_list
+
