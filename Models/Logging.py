@@ -13,8 +13,8 @@ class LoggerClass(object):
         formatter = logging.Formatter('%(asctime)s - %(filename)s.%(funcName)s:%(lineno)s - %(levelname)s - %(message)s')
         # add formatter to dir
         dir.setFormatter(formatter)
-        log = logging.getLogger('allegro_project')
-        log.setLevel(logging.DEBUG)
+        log = logging.getLogger(__name__)
+        log.setLevel(logging.INFO)
         log.addHandler(dir)
         # create a file handler
         log.info('Logging start recording...')
