@@ -4,12 +4,19 @@ from Models.Logging import log
 import const
 import string
 
+def dict_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
 
 class SQLHandler(object):
 
     def __init__(self):
         self.conn = sqlite3.connect(const.DB)
+        self.conn.row_factory = dict_factory
         self.c = self.conn.cursor()
+
 
     def __specchars(self, lists):
         """
