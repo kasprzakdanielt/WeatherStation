@@ -1,4 +1,3 @@
-
 import time
 import Adafruit_DHT
 from Models.SQLhandler import SQLHandler
@@ -15,7 +14,6 @@ class Dht11(object):
 
     def __init__(self):
         self.database = SQLHandler()
-
 
     def read_temp_and_humidity(self):
         hostname = socket.gethostname()
@@ -40,7 +38,7 @@ class Dht11(object):
         self.database.insert('sensor_records', database_entry_humidity)
 
     def post_data_to_main_server(self):
-        payload = self.get_data_from_database_to_send(10)
+        payload = self.get_data_from_database_to_send(100)
         attempts = 0
         success = False
         log.info("Uploading data")
@@ -49,10 +47,9 @@ class Dht11(object):
                 r = requests.post(UPLOAD_ADRESS, data={'payload': payload})
                 if r.status_code == requests.codes.ok:
                     success = True
-                    print r.json()
-
-                    print json.loads(r.json())
-                    #self.database.delete('sensor_records', 'sensor_id in ({})'.format(", ".join(id_list)))
+                    id = r.json()['data']
+                    id_list = id[0].decode("utf-8").replace("[", "").replace("]", "")
+                    self.database.delete('sensor_records', 'sensor_id in ({})'.format(id_list))
             except requests.exceptions.ConnectionError:
                 time.sleep(10)
                 attempts += 1
