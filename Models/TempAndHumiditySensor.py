@@ -56,7 +56,5 @@ class Dht11(object):
                 log.info("Error uploading data")
 
     def get_data_from_database_to_send(self, limit):
-        lista_do_wyslania = self.database.select('select sensor_id, sensor_type, sensor_data, sensor_date, sensor_name from sensor_records LIMIT {}'.format(limit))
-        return json.dumps(lista_do_wyslania)
-
-
+        payload = self.database.select('select sensor_id, sensor_type, sensor_data, sensor_date, sensor_name from sensor_records LIMIT {}'.format(limit))
+        return json.dumps(payload)
