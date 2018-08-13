@@ -4,7 +4,7 @@ from Models.SQLhandler import SQLHandler
 from Models.Logging import log
 import socket
 import requests
-from const import UPLOAD_ADRESS
+from const import UPLOAD_ADRESS, DBPUSHLIMIT
 import json
 
 
@@ -38,7 +38,7 @@ class Dht11(object):
         self.database.insert('sensor_records', database_entry_humidity)
 
     def post_data_to_main_server(self):
-        payload = self.get_data_from_database_to_send(100)
+        payload = self.get_data_from_database_to_send(DBPUSHLIMIT)
         attempts = 0
         success = False
         log.info("Uploading data")
