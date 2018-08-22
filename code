@@ -1,9 +1,0 @@
-
-attempts = 0
-
-while attempts < 3:
-    try:
-            # do something with the data
-    except MySQLdb.Error, e:
-        attempts += 1
-        print "MySQL Error %d: %s" % (e.args[0], e.args[1])

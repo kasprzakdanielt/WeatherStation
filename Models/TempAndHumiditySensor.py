@@ -9,7 +9,6 @@ import json
 
 
 class Dht11(object):
-
     database = None
 
     def __init__(self):
@@ -19,7 +18,7 @@ class Dht11(object):
         hostname = socket.gethostname()
         while True:
             humidity, temperature = Adafruit_DHT.read_retry(11, 17)
-            log.info('Temp: {0:0.1f} C  Humidity: {1:0.1f} %'.format(temperature, humidity))
+            log.debug('Temp: {0:0.1f} C  Humidity: {1:0.1f} %'.format(temperature, humidity))
             self.insert_humidity_to_database(humidity, hostname)
             self.insert_temp_to_database(temperature, hostname)
             self.post_data_to_main_server()
@@ -41,20 +40,25 @@ class Dht11(object):
         payload = self.get_data_from_database_to_send(DBPUSHLIMIT)
         attempts = 0
         success = False
-        log.info("Uploading data")
+        log.debug("Uploading data")
         while attempts < 3 and not success:
             try:
                 r = requests.post(UPLOAD_ADRESS, data={'payload': payload})
                 if r.status_code == requests.codes.ok:
                     success = True
                     id = r.json()['data']
-                    id_list = id[0].decode("utf-8").replace("[", "").replace("]", "")
-                    self.database.delete('sensor_records', 'sensor_id in ({})'.format(id_list))
+                    id_decoded = json.loads(id[0])
+                    id_list = []
+                    for single_id in id_decoded:
+                        id_list.append(single_id['sensor_id_child'])
+                    self.database.delete('sensor_records', 'sensor_id in {}'.format(tuple(id_list)))
             except requests.exceptions.ConnectionError:
                 time.sleep(10)
                 attempts += 1
-                log.info("Error uploading data")
+                log.debug("Error uploading data")
 
     def get_data_from_database_to_send(self, limit):
-        payload = self.database.select('select sensor_id, sensor_type, sensor_data, sensor_date, sensor_name from sensor_records LIMIT {}'.format(limit))
+        payload = self.database.select(
+            'select sensor_id, sensor_type, sensor_data, sensor_date, sensor_name from sensor_records LIMIT {}'.format(
+                limit))
         return json.dumps(payload)
